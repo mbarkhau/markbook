@@ -21,7 +21,7 @@ def get_part_tex(part):
 
     return "".join(res)
 
-def post_process(meta):
+def post_process(meta, basepath="."):
     """ Post processing for Tex File (adds title/author/chapter)"""
     old_lines = open("out.tex").readlines()
     new_lines = []

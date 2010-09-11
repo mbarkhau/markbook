@@ -60,9 +60,10 @@ def post_proc_parts(parts, xml):
         cur.append(c)
 
 
-def post_proc(meta):
+def post_proc(meta, basepath="."):
     """ Post processing for DocBook File (adds title/author/chapter)"""
-    xml = etree.fromstring(open("out.db").read())
+    outpath = os.path.abspath(basepath) + "/out.db"
+    xml = etree.fromstring(open(outpath).read())
     xml.tag = "book"
     info = xml.xpath("articleinfo")[0]
     info.tag = "bookinfo"
