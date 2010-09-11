@@ -29,5 +29,4 @@ def compile(basepath='.'):
             key = part_key(*n)
             metadata["parts"][key] = curmeta
 
-    print metadata
     return metadata
