@@ -1,5 +1,5 @@
 #!/usr/bin/python2.5
-
+import sys 
 import os, time
 import texproc
 import docbookproc as dbproc
@@ -7,6 +7,7 @@ import metadata
 
 TEX_TMPL_NAME = "header.tex.tmpl"
 TEX_TMPL_STD = os.path.join(os.path.dirname(__file__), "header_en.tex.tmpl")
+FILE_ENDINGS = (".txt", ".mkd", ".markdown")
 
 def filelist(basepath="."):
     basepath = os.path.abspath(basepath)
@@ -14,9 +15,12 @@ def filelist(basepath="."):
     for path, dirs, dirfiles in os.walk(basepath):
         for f in dirfiles:
             files.append(os.path.join(path, f))
-    files = filter(lambda f: f.endswith(".mkd"), files)
-    files.sort()
-    return files
+    mkd = []
+    for e in FILE_ENDINGS:
+        mkd.extend(filter(lambda f: f.endswith(e), files))
+
+    mkd.sort()
+    return mkd 
 
 def db_cmd(files):
     """ DocBook Command """
@@ -40,10 +44,9 @@ def tex_cmd(files):
 def pdf_cmd():
     return "pdflatex out.tex"
 
-def compile():
+def compile(files):
     meta = metadata.compile()
 
-    files = filelist()
     os.system(db_cmd(files))
     dbproc.post_proc(meta)
     os.system(html_cmd())
@@ -52,4 +55,10 @@ def compile():
     os.system(pdf_cmd())
     os.system(pdf_cmd()) #2nd time for toc
 
-compile()
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        for p in sys.argv[1:]:
+           files = filelist(p)
+           compile(files)
+    else:
+        print "Please specify the path of your markbook files"
