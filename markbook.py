@@ -22,46 +22,43 @@ def filelist(basepath="."):
     mkd.sort()
     return mkd 
 
-def db_cmd(files, basepath="."):
+def db_cmd(files):
     """ DocBook Command """
     files_param = " ".join(files)
-    outpath = os.path.abspath(basepath) + "/out.db" 
-    return "pandoc -s -S -w docbook -o %s %s" % (outpath, files_param)
+    return "pandoc -s -S -w docbook -o out.db %s" % files_param
 
-def html_cmd(basepath="."):
-    outpath = os.path.abspath(basepath) + "/out.db" 
-    return "xmlto xhtml %s -o %s" % (outpath, basepath +"/html")
+def html_cmd():
+    return "xmlto xhtml %s -o %s" % ("out.db", "html")
 
-def get_tmpl(basepath="."):
-    local_tmpl = "%s/%s" % (os.path.abspath(basepath), TEX_TMPL_NAME)
-    if os.path.isfile(local_tmpl):
-        return local_tmpl
+def get_tmpl():
+    if os.path.isfile(TEX_TMPL_NAME):
+        return TEX_TMPL_NAME 
     else:
         return TEX_TMPL_STD 
-
-def tex_cmd(files, basepath="."):
+def tex_cmd(files):
     files_param = " ".join(files)
-    args = (get_tmpl(basepath), "out.tex", files_param)
+    out_path = "out.tex"
+    args = (get_tmpl(), out_path, files_param)
     return "pandoc -C %s -s -S --toc -o %s %s" % args
 
-def pdf_cmd(basepath="."):
+def pdf_cmd():
     return "pdflatex out.tex"
 
-def compile(files, basepath="."):
-    meta = metadata.compile(basepath)
+def compile(files):
+    meta = metadata.compile()
 
-    os.system(db_cmd(files, basepath))
-    dbproc.post_proc(meta, basepath)
-    os.system(html_cmd(basepath))
-    os.system(tex_cmd(files, basepath))
-    texproc.post_process(meta, basepath)
-    os.system(pdf_cmd(basepath))
-    os.system(pdf_cmd(basepath)) #2nd time for toc
+    os.system(db_cmd(files))
+    dbproc.post_proc(meta)
+    os.system(html_cmd())
+    os.system(tex_cmd(files))
+    texproc.post_process(meta)
+    os.system(pdf_cmd())
+    os.system(pdf_cmd()) #2nd time for toc
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         for p in sys.argv[1:]:
            files = filelist(p)
-           compile(files, p)
+           compile(files)
     else:
         print "Please specify the path of your markbook files"
